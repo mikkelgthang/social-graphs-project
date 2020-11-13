@@ -64,10 +64,8 @@ def downloadBillboardWeek(date):
     
     return billboardWeek
 
-def downloadBillboard():
+def downloadBillboard(startDate, endDate):
     # Billboard Top 100 first week: 1958-08-09
-    startDate = '1958-08-09'
-    endDate = '1960-02-01'
     dateFormat = "%Y-%m-%d"
     startDate = datetime.datetime.strptime(startDate, dateFormat)
     endDate = datetime.datetime.strptime(endDate, dateFormat)
@@ -91,5 +89,5 @@ def downloadBillboard():
 
     return billboard
 
-billboard = downloadBillboard()
+# billboard = downloadBillboard()
 #print(billboard)
