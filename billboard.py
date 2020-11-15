@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import requests, datetime, time, re
+import requests, datetime, time, re, json, io
 
 # Dictionary setup
 '''
@@ -30,11 +30,11 @@ def downloadBillboardWeek(date):
         # 429 Client Error: Too Many Requests for url
         time.sleep(int(req.headers["Retry-After"]))
         # Try to download again after suggested time
-        downloadBillboardWeek(date)
+        return downloadBillboardWeek(date)
     elif req.status_code == 503:
         print("503: + " + date)
         time.sleep(1)
-        downloadBillboardWeek(date)
+        return downloadBillboardWeek(date)
     else:
         # Raise if other type
         req.raise_for_status()
@@ -89,5 +89,6 @@ def downloadBillboard(startDate, endDate):
 
     return billboard
 
-# billboard = downloadBillboard()
-#print(billboard)
+#billboard = downloadBillboard('1974-01-01', '1974-12-31')
+#with open("./1974_v3.txt", "w") as file:
+#            json.dump(billboard, file, sort_keys=True, indent=4)
