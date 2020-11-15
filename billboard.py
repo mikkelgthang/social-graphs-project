@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import requests, datetime, time
+import requests, datetime, time, re
 
 # Dictionary setup
 '''
