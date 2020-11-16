@@ -108,10 +108,13 @@ class LyricsGenius():
     def lyricsShortcut(self, songUrl):
         # Get the song lyrics by scraping song url
         div = None
-        html = BeautifulSoup(
-            self._makeRequest_(songUrl, web=True).replace('<br/>', '\n'),
-            "html.parser"
-        )
+        try:
+            html = BeautifulSoup(
+                self._makeRequest_(songUrl, web=True).replace('<br/>', '\n'),
+                "html.parser"
+            )
+        except HTTPError as e:
+            return ""
         div = html.find("div", class_=re.compile("^lyrics$|Lyrics__Root"))
         if div is None:
             div = html.find("div", class_=re.compile("LyricsPlaceholder__Container"))

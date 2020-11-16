@@ -12,7 +12,7 @@ import pandas as pd
 
 
 token = config("ACCESS_TOKEN")
-for i in range(1963, 1983):
+for i in range(1966, 1983):
     with open('./billboard/' + str(i) + '.txt','r') as read_file:
         billboardMap = json.load(read_file)
     networkConstructor = NetworkConstructor(billboardMap, token, networkPath="./network/" + str(i) + ".gpickle", songMemPath="./network/songMem/songMem.txt", lyricsMemPath="./network/lyricsMem/lyricsMem.txt")
