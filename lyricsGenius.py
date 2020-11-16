@@ -105,6 +105,31 @@ class LyricsGenius():
 
         return lyrics
 
+    def lyricsShortcut(self, songUrl):
+        # Get the song lyrics by scraping song url
+        div = None
+        html = BeautifulSoup(
+            self._makeRequest_(songUrl, web=True).replace('<br/>', '\n'),
+            "html.parser"
+        )
+        div = html.find("div", class_=re.compile("^lyrics$|Lyrics__Root"))
+        if div is None:
+            div = html.find("div", class_=re.compile("LyricsPlaceholder__Container"))
+            if div is None:
+                print("dumping html")
+                f = open("hallo.txt", "w", encoding='utf-8')
+                f.write(str(html))
+                f.close()
+                return "Error with song url: {}".format(songUrl)
+            else:
+                return ""
+        lyrics = div.get_text()
+
+        lyrics = re.sub(r'(\[.*?\])*', '', lyrics)
+        lyrics = re.sub('\n{2}', '\n', lyrics)
+
+        return lyrics
+
     def _cleanString_(self, s):
         return s.strip().replace('\u200b', '').replace('\u200c', '')
 
@@ -145,3 +170,34 @@ class LyricsGenius():
         featuringArtists = [artist['name'].strip()
                             for artist in featuringArtists]
         return([self._cleanString_(p) for p in primaryArtists], [self._cleanString_(f) for f in featuringArtists])
+
+    def fullInfo(self, title, artist, year):
+        artist = urllib.parse.quote(artist)
+        title = urllib.parse.quote(title)
+        path = "search?q=" + title + " " + artist
+        searchResponse = self._makeRequest_(path)
+        hits = searchResponse['hits']
+        hitResults = [hit['result'] for hit in hits if hit['type'] == "song"]
+        songIds = [song['id'] for song in hitResults]
+        songUrls = [song['url'] for song in hitResults]
+        if(len(songIds) == 0):
+            return ([], [], "")
+        
+        songId = songIds[0]
+        path = "songs/" + str(songId)
+        songResponse = self._makeRequest_(path)
+        song = songResponse['song']
+
+        if(self._checkRelease_(song, year) == False):
+            return([],[],"")
+
+        lyrics = ""
+        if(songUrls[0] is not None):
+            lyrics = self.lyricsShortcut(songUrls[0])
+
+        primaryArtists = re.split('&', song['primary_artist']['name'])
+        primaryArtists = [artist.strip() for artist in primaryArtists]
+        featuringArtists = song['featured_artists']
+        featuringArtists = [artist['name'].strip()
+                            for artist in featuringArtists]
+        return([self._cleanString_(p) for p in primaryArtists], [self._cleanString_(f) for f in featuringArtists], lyrics)

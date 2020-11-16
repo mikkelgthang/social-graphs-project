@@ -11,16 +11,11 @@ import networkx as nx
 import pandas as pd
 
 
-# for i in range(1963, 2021):
-#     with open('./billboard/' + str(i) + '.txt','r') as read_file:
-#         billboardMap = json.load(read_file)
-#     networkConstructor = NetworkConstructor(billboardMap, token, networkPath="./network/" + str(i) + ".gpickle", songMemPath="./network/songMem/songMem.txt", lyricsMemPath="./network/lyricsMem/lyricsMem.txt")
-
 token = config("ACCESS_TOKEN")
-for i in range(1983,2003):
-    with open('./billboard/' + str(i) + '.txt', 'r') as read_file:
+for i in range(1963, 1983):
+    with open('./billboard/' + str(i) + '.txt','r') as read_file:
         billboardMap = json.load(read_file)
-    netC = NetworkConstructor(billboardMap, token, networkPath='network/' + str(i) + '.gpickle', songMemPath='./mikkelSongMem.txt', lyricsMemPath='./mikkelLyricsMem.txt')
+    networkConstructor = NetworkConstructor(billboardMap, token, networkPath="./network/" + str(i) + ".gpickle", songMemPath="./network/songMem/songMem.txt", lyricsMemPath="./network/lyricsMem/lyricsMem.txt")
 
 # allNetworks = []
 # for i in range(1958, 2021):
