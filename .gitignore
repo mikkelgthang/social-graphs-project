@@ -150,10 +150,26 @@ dmypy.json
 !.vscode/extensions.json
 *.code-workspace
 
+# End of https://www.toptal.com/developers/gitignore/api/python,vscode
+
+
 ### resources ###
 resources/*
 
 ### error output ###
 hallo.txt
 
-# End of https://www.toptal.com/developers/gitignore/api/python,vscode
+### billboard data ###
+billboard - Copy/*
+
+### network data ###
+network/*.gpickle
+network/lyricsMem/*
+network/songMem/*
+network - Copy/*
+
+### parallel data ###
+bettaSongMem.txt
+bettaLyricsMem.txt
+mikkelSongMem.txt
+mikkelLyricsMem.txt

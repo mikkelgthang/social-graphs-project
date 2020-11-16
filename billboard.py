@@ -28,6 +28,7 @@ def downloadBillboardWeek(date):
     if req.status_code == 429:
         print("429: + " + date)
         # 429 Client Error: Too Many Requests for url
+        print("Retrying after: " + str(req.headers["Retry-After"]))
         time.sleep(int(req.headers["Retry-After"]))
         # Try to download again after suggested time
         return downloadBillboardWeek(date)
@@ -86,7 +87,7 @@ def downloadBillboard(startDate, endDate):
             # Move to next week
             tempDate += datetime.timedelta(days=7)
         # Save year to file
-        path = "./billboardYears/" + str(tempYear) + ".txt"
+        path = "./billboard/" + str(tempYear) + ".txt"
         with open(path, "w") as file:
             json.dump(billboard, file, sort_keys=True, indent=4)
         print("Year saved: %s" %tempYear)
@@ -97,7 +98,7 @@ def downloadBillboard(startDate, endDate):
 
 def removeMovieRefsFromTitles(year):
     # Load year file
-    path = "./billboardYears/" + str(year) + ".txt"
+    path = "./billboard/" + str(year) + ".txt"
     billboard = eval(open(path).read())
     # Iterate through titles each week
     for w in billboard[str(year)].items():
@@ -121,3 +122,39 @@ def removeMovieRefsFromTitlesSpecific():
 
 #removeMovieRefsFromTitlesSpecific()
 #downloadBillboard('1965-01-09', '2020-11-16')
+#billboard = downloadBillboard('1974-01-01', '1974-12-31')
+
+old_stuff = '''
+def storeBillboardData(start, end):
+    print(start)
+    for i in range(start, end + 1):
+        billboard = downloadBillboard(str(i) + '-01-01', str(i) + '-12-31')
+        f = open('billboard/' + str(i) + ".txt", 'w')
+        json.dump(billboard, f, indent=4)
+        f.close()
+
+def storeSpecificBillboardData(startDate, endDate, fileName):
+    billboard = downloadBillboard(startDate, endDate)
+    f = open('billboard/' + fileName + ".txt", 'w')
+    json.dump(billboard, f, indent=4)
+    f.close()
+
+def patchHoles(fileName):
+    f = open('billboard/' + fileName + '.txt', 'r')
+    unfinishedDict = json.load(f)
+    f.close()
+    for year in unfinishedDict:
+        for week in unfinishedDict[year]:
+            if unfinishedDict[year][week] == {}:
+                print("downloading missing week: {}".format(week))
+                d = year + "-W" + str(int(week))
+                r = datetime.datetime.strptime(d + '-1', "%Y-W%W-%w")
+                y = str(r.year)
+                m = str(r.month) if r.month >= 10 else "0" + str(r.month)
+                day = str(r.day) if r.day >= 10 else "0" + str(r.day)
+                # print(downloadBillboardWeek(y+"-"+m+"-"+day))
+                unfinishedDict[year][week] = downloadBillboardWeek(y+"-"+m+"-"+day)
+    f = open('billboard/' + fileName + '.txt', 'w')
+    json.dump(unfinishedDict, f, indent=4)
+    f.close()
+'''
