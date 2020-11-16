@@ -70,25 +70,54 @@ def downloadBillboard(startDate, endDate):
     startDate = datetime.datetime.strptime(startDate, dateFormat)
     endDate = datetime.datetime.strptime(endDate, dateFormat)
 
-    billboard = {}
+    #billboard = {}
     tempDate = startDate
     tempYear = tempDate.year
     while tempDate < endDate:
-        # Initialize year
+        # Initialize billboard and year
+        billboard = {}
         billboard[tempYear] = {}
         print("Downloading year: %s" %tempYear)
         while tempDate.year == tempYear and tempDate < endDate:
             week = tempDate.strftime("%V")
-            print("Downloading week: %s" %week)
+            print("Week: %s" %week)
             # Initialize weeknumber and download week data
             billboard[tempDate.year][week] = downloadBillboardWeek(tempDate.strftime(dateFormat))
             # Move to next week
             tempDate += datetime.timedelta(days=7)
+        # Save year to file
+        path = "./billboardYears/" + str(tempYear) + ".txt"
+        with open(path, "w") as file:
+            json.dump(billboard, file, sort_keys=True, indent=4)
+        print("Year saved: %s" %tempYear)
         # Increment year
         tempYear = tempDate.year
 
-    return billboard
+    #return billboard
 
-#billboard = downloadBillboard('1974-01-01', '1974-12-31')
-#with open("./1974_v3.txt", "w") as file:
-#            json.dump(billboard, file, sort_keys=True, indent=4)
+def removeMovieRefsFromTitles(year):
+    # Load year file
+    path = "./billboardYears/" + str(year) + ".txt"
+    billboard = eval(open(path).read())
+    # Iterate through titles each week
+    for w in billboard[str(year)].items():
+        for r in w[1].items():
+            # Remove potential movie reference styles
+            title = r[1]['title'].split(' (From \\')
+            if len(title) == 1:
+                title = r[1]['title'].split(' (Theme From')
+            if len(title) == 1:
+                title = r[1]['title'].split(' (Love Theme From')
+            # Update dict
+            billboard[str(year)][w[0]][r[0]]['title'] = title[0]
+    # Save updated dict
+    with open(path, "w") as file:
+        json.dump(billboard, file, sort_keys=True, indent=4)
+
+def removeMovieRefsFromTitlesSpecific():
+    for i in range(1963,1998):
+        print("Removing movire references from year: {}" .format(i))
+        removeMovieRefsFromTitles(i)
+
+#removeMovieRefsFromTitlesSpecific()
+#downloadBillboard('1965-01-09', '2020-11-16')
