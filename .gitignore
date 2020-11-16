@@ -160,9 +160,16 @@ resources/*
 hallo.txt
 
 ### billboard data ###
-billboard/*
 billboard - Copy/*
 
 ### network data ###
-network/*
+network/*.gpickle
+network/lyricsMem/*
+network/songMem/*
 network - Copy/*
+
+### parallel data ###
+bettaSongMem.txt
+bettaLyricsMem.txt
+mikkelSongMem.txt
+mikkelLyricsMem.txt

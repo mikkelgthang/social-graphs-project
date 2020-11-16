@@ -5,6 +5,7 @@ from requests.exceptions import HTTPError, Timeout
 import time
 import re
 import io
+import datetime
 
 
 class LyricsGenius():
@@ -50,7 +51,7 @@ class LyricsGenius():
         else:
             return response.status
 
-    def lyrics(self, title, artist=""):
+    def lyrics(self, title, year, artist=""):
         """Finds genius song id by title and artist, then 
         scrapes the genius webpage for the lyrics. The function
         is a modified version of the lyrics function from
@@ -76,32 +77,50 @@ class LyricsGenius():
         hitResults = [hit['result'] for hit in hits if hit['type'] == "song"]
         songUrls = [song['url']
                     for song in hitResults if artist.lower() in song['primary_artist']['name'].lower()]
+        if(len(songUrls) == 0):
+            return ""
         songUrl = songUrls[0]
 
         # Get the song lyrics by scraping song url
         div = None
         html = BeautifulSoup(
-            self._makeRequest_(songUrl, web=True).replace('<br />', '\n'),
+            self._makeRequest_(songUrl, web=True).replace('<br/>', '\n'),
             "html.parser"
         )
         div = html.find("div", class_=re.compile("^lyrics$|Lyrics__Root"))
         if div is None:
-            print("dumping html")
-            f = open("hallo.txt", "w", encoding='utf-8')
-            f.write(str(html))
-            f.close()
-            return "Error with song url: {}".format(songUrl)
+            div = html.find("div", class_=re.compile("LyricsPlaceholder__Container"))
+            if div is None:
+                print("dumping html")
+                f = open("hallo.txt", "w", encoding='utf-8')
+                f.write(str(html))
+                f.close()
+                return "Error with song url: {}".format(songUrl)
+            else:
+                return ""
         lyrics = div.get_text()
 
         lyrics = re.sub(r'(\[.*?\])*', '', lyrics)
         lyrics = re.sub('\n{2}', '\n', lyrics)
 
-        return lyrics.strip("\n")
+        return lyrics
 
     def _cleanString_(self, s):
         return s.strip().replace('\u200b', '').replace('\u200c', '')
 
-    def artist(self, title, artist):
+    def _checkRelease_(self, song, year):
+        release = song['release_date_for_display'] or None
+        if(release is None):
+            return False
+        releaseYear = re.findall(r'\d{4}',release)
+        if(len(releaseYear)==0):
+            return False
+        if (int(releaseYear[0]) > int(year)):
+            return False
+        else:
+            return True
+
+    def artist(self, title, artist, year):
         artist = urllib.parse.quote(artist)
         title = urllib.parse.quote(title)
         path = "search?q=" + title + " " + artist
@@ -111,10 +130,15 @@ class LyricsGenius():
         songIds = [song['id'] for song in hitResults]
         if(len(songIds) == 0):
             return ([], [])
+        
         songId = songIds[0]
         path = "songs/" + str(songId)
         songResponse = self._makeRequest_(path)
         song = songResponse['song']
+
+        if(self._checkRelease_(song, year) == False):
+            return([],[])
+
         primaryArtists = re.split('&', song['primary_artist']['name'])
         primaryArtists = [artist.strip() for artist in primaryArtists]
         featuringArtists = song['featured_artists']

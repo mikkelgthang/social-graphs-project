@@ -10,11 +10,17 @@ import networkx as nx
 
 import pandas as pd
 
-# token = config("ACCESS_TOKEN")
-# for i in range(1958, 2021):
+
+# for i in range(1963, 2021):
 #     with open('./billboard/' + str(i) + '.txt','r') as read_file:
 #         billboardMap = json.load(read_file)
-#     networkConstructor = NetworkConstructor(billboardMap, token, networkPath="./network/" + str(i) + ".gpickle", songMemPath="./network/songMem/songMem.txt")
+#     networkConstructor = NetworkConstructor(billboardMap, token, networkPath="./network/" + str(i) + ".gpickle", songMemPath="./network/songMem/songMem.txt", lyricsMemPath="./network/lyricsMem/lyricsMem.txt")
+
+token = config("ACCESS_TOKEN")
+for i in range(1983,2003):
+    with open('./billboard/' + str(i) + '.txt', 'r') as read_file:
+        billboardMap = json.load(read_file)
+    netC = NetworkConstructor(billboardMap, token, networkPath='network/' + str(i) + '.gpickle', songMemPath='./mikkelSongMem.txt', lyricsMemPath='./mikkelLyricsMem.txt')
 
 # allNetworks = []
 # for i in range(1958, 2021):
@@ -34,33 +40,38 @@ import pandas as pd
 # lilwayneout = [(a,c['label']) for (a,b,c) in list(allEdges) if a.lower()=='lil wayne']
 # print([(a,b,c['label']) for (a,b,c) in list(allEdges) if a.lower()=='Michael Jackson'])
 
-for i in range(1966,1967):
-    print(i)
-    patchHoles(str(i))
+# for i in range(1966,1967):
+#     print(i)
+#     patchHoles(str(i))
 
 # m = {
 #     "2012": {
 #         "01": {
 #             "1": {
-#                 "title": "hey",
-#                 "artist": "spaghett & spaghott"
+#                 "title": "Life is Good",
+#                 "artist": "Future Featuring Drake"
+#             },
+#             "2": {
+#                 "title": "Circles",
+#                 "artist": "Post Malone"
 #             }
 #         },
 #         "02": {
 #             "1": {
-#                 "title": "hey",
-#                 "artist": "spaghett & spaghott"
+#                 "title": "Circles",
+#                 "artist": "Post Malone"
 #             }
 #         }
 #     }
 # }
-# networkConstructor = NetworkConstructor(m, token, networkPath="./network/testtest.gpickle", songMemPath="./network/songMem/songMem.txt")
+# networkConstructor = NetworkConstructor(m, token, networkPath="./network/testtest.gpickle", songMemPath="./network/songMem/songMem.txt", lyricsMemPath="./network/lyricsMem/lyricsMem.txt")
 # network = networkConstructor.network
 # network = nx.read_gpickle('./network/testtest.gpickle')
 # print(network.nodes(data=True))
 # print(network.edges(data=True))
 # print(len(network.nodes(data=True)))
 # print(len(network.edges(data=True)))
+# print(network.nodes(data=True)['Post Malone']['songs']['Circles']['lyrics'])
 
 
 
