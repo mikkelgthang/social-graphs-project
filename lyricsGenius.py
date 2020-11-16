@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import urllib
 from requests.exceptions import HTTPError, Timeout
 import time
 import re
@@ -27,13 +28,19 @@ class LyricsGenius():
         params = params if params else {}
         response = None
         sleep = 0.2
-        try:
-            response = self._session.request(
-                'GET', uri, timeout=5, params=params, headers=header, **kwargs)
+        response = self._session.request(
+                'GET', uri, params=params, headers=header, **kwargs)
+        if response.status_code == 429:
+            time.sleep(int(response.headers["Retry-After"]))
+            # Try to download again after suggested time
+            return self._makeRequest_(path, params=params, web=web, kwargs=kwargs)
+        elif response.status_code == 503:
+            time.sleep(1)
+            self._makeRequest_(path, params=params, web=web, kwargs=kwargs)
+        else:
+            # Raise if other type
             response.raise_for_status()
-            time.sleep(sleep)
-        except TimeoutError as e:
-            raise TimeoutError("Request timed out:\n{e}".format(e=e))
+        time.sleep(sleep)
 
         if(web):
             return response.text
@@ -91,18 +98,26 @@ class LyricsGenius():
 
         return lyrics.strip("\n")
 
+    def _cleanString_(self, s):
+        return s.strip().replace('\u200b', '').replace('\u200c', '')
+
     def artist(self, title, artist):
+        artist = urllib.parse.quote(artist)
+        title = urllib.parse.quote(title)
         path = "search?q=" + title + " " + artist
         searchResponse = self._makeRequest_(path)
         hits = searchResponse['hits']
         hitResults = [hit['result'] for hit in hits if hit['type'] == "song"]
         songIds = [song['id'] for song in hitResults]
+        if(len(songIds) == 0):
+            return ([], [])
         songId = songIds[0]
         path = "songs/" + str(songId)
         songResponse = self._makeRequest_(path)
         song = songResponse['song']
-        primaryArtists = re.split('&',song['primary_artist']['name'])
+        primaryArtists = re.split('&', song['primary_artist']['name'])
         primaryArtists = [artist.strip() for artist in primaryArtists]
         featuringArtists = song['featured_artists']
-        featuringArtists = [artist['name'].strip() for artist in featuringArtists]
-        return(primaryArtists, featuringArtists)
+        featuringArtists = [artist['name'].strip()
+                            for artist in featuringArtists]
+        return([self._cleanString_(p) for p in primaryArtists], [self._cleanString_(f) for f in featuringArtists])
