@@ -1,21 +1,34 @@
 from lyricsGenius import LyricsGenius
 from networkConstructor import NetworkConstructor
-from billboard import storeBillboardData, storeSpecificBillboardData, patchHoles
 from decouple import config
 import collections
 import io
 import pickle
 import json
 import networkx as nx
+import math
 
 import pandas as pd
 
+net = nx.read_gpickle("fullNetworkSentiment.gpickle")
+sentList = []
+for node in net.nodes(data=True):
+    if 'songs' in node[1]:
+        for k, v in node[1]['songs'].items():
+            if('sVal' in v):
+                sentList.append((v['sVal'], k + " - " + node[0]))
 
-token = config("ACCESS_TOKEN")
-for i in range(1966, 1983):
-    with open('./billboard/' + str(i) + '.txt','r') as read_file:
-        billboardMap = json.load(read_file)
-    networkConstructor = NetworkConstructor(billboardMap, token, networkPath="./network/" + str(i) + ".gpickle", songMemPath="./network/songMem/songMem.txt", lyricsMemPath="./network/lyricsMem/lyricsMem.txt")
+sentList = sorted(sentList, key=lambda l: l[0])
+print(len(sentList))
+hey = [l[0] for l in sentList if not math.isnan(l[0])]
+
+print(sum(hey)/len(hey))
+
+# token = config("ACCESS_TOKEN")
+# for i in range(1966, 1983):
+#     with open('./billboard/' + str(i) + '.txt','r') as read_file:
+#         billboardMap = json.load(read_file)
+#     networkConstructor = NetworkConstructor(billboardMap, token, networkPath="./network/" + str(i) + ".gpickle", songMemPath="./network/songMem/songMem.txt", lyricsMemPath="./network/lyricsMem/lyricsMem.txt")
 
 # allNetworks = []
 # for i in range(1958, 2021):
@@ -67,7 +80,6 @@ for i in range(1966, 1983):
 # print(len(network.nodes(data=True)))
 # print(len(network.edges(data=True)))
 # print(network.nodes(data=True)['Post Malone']['songs']['Circles']['lyrics'])
-
 
 
 # network = nx.read_gpickle('./network/1988.gpickle')
