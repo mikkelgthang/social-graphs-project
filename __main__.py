@@ -11,18 +11,28 @@ import math
 import pandas as pd
 
 net = nx.read_gpickle("fullNetworkSentiment.gpickle")
-sentList = []
-for node in net.nodes(data=True):
-    if 'songs' in node[1]:
-        for k, v in node[1]['songs'].items():
-            if('sVal' in v):
-                sentList.append((v['sVal'], k + " - " + node[0]))
+nodes = net.nodes(data=True)
+minYear = 5555
+for node in nodes:
+    if "songs" in node[1]:
+        for song in node[1]['songs'].keys():
+            for p in node[1]['songs'][song]['placements']:
+                if int(p['year']) < minYear:
+                    minYear = int(p['year'])
+print(minYear)
+# print(net.nodes(data=True)['Drake']['songs']['One Dance'])
+# sentList = []
+# for node in net.nodes(data=True):
+#     if 'songs' in node[1]:
+#         for k, v in node[1]['songs'].items():
+#             if('sVal' in v):
+#                 sentList.append((v['sVal'], k + " - " + node[0]))
 
-sentList = sorted(sentList, key=lambda l: l[0])
-print(len(sentList))
-hey = [l[0] for l in sentList if not math.isnan(l[0])]
+# sentList = sorted(sentList, key=lambda l: l[0])
+# print(len(sentList))
+# hey = [l[0] for l in sentList if not math.isnan(l[0])]
 
-print(sum(hey)/len(hey))
+# print(sum(hey)/len(hey))
 
 # token = config("ACCESS_TOKEN")
 # for i in range(1966, 1983):

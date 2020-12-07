@@ -114,6 +114,7 @@ class LyricsGenius():
                 "html.parser"
             )
         except HTTPError as e:
+            print(e)
             return ""
         div = html.find("div", class_=re.compile("^lyrics$|Lyrics__Root"))
         if div is None:

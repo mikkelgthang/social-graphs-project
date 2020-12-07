@@ -1,5 +1,4 @@
 from nltk.corpus import stopwords
-from lyricsGenius import LyricsGenius
 import io
 import pickle
 import networkx as nx
@@ -10,7 +9,7 @@ nltk.download('punkt')
 stopwords = set(stopwords.words("english"))
 
 
-network = nx.read_gpickle("./fullNetwork.gpickle")
+# network = nx.read_gpickle("./fullNetwork.gpickle")
 
 # labMTWordlist = pd.read_csv(
 #     'https://journals.plos.org/plosone/article/file?type=supplementary&id=info:doi/10.1371/journal.pone.0026752.s001',
@@ -42,15 +41,16 @@ def calcSentiment(text):
 # h['hey'] = 5
 # print(network.nodes(data=True)['Drake']['songs']['One Dance'])
 
+print(tokenize("hello\nlove"))
 
-tot = len(network.nodes())
-i = 1
-for node in network.nodes(data=True):
-    print("{i} / {tot}".format(i=i, tot=tot))
-    i = i + 1
-    if 'songs' in node[1]:
-        for k, v in node[1]['songs'].items():
-            if(not v['lyrics'] == "404 Error"):
-                v['sVal'] = calcSentiment(v['lyrics'])
+# tot = len(network.nodes())
+# i = 1
+# for node in network.nodes(data=True):
+#     print("{i} / {tot}".format(i=i, tot=tot))
+#     i = i + 1
+#     if 'songs' in node[1]:
+#         for k, v in node[1]['songs'].items():
+#             if(not v['lyrics'] == "404 Error"):
+#                 v['sVal'] = calcSentiment(v['lyrics'])
 
-nx.write_gpickle(network, './fullNetworkSentiment.gpickle')
+# nx.write_gpickle(network, './fullNetworkSentiment.gpickle')
